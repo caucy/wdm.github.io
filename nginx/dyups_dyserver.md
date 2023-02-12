@@ -118,5 +118,6 @@ ngx_dyups_do_update(ngx_str_t *name, ngx_buf_t *buf, ngx_str_t *rv)
 
 # 2. nginx 如何实现不reload 更新server
 
+目前没有开源的dynamic server 实现，但是主要的实现思路就是动态更新ngx_http_core_module cscf->server_names 这个hash表即可。
 
 # 3. apisix 如何实现不reload 更新upstream & server
