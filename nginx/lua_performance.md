@@ -45,6 +45,7 @@ dpkg -l|grep debug
 ### 下载各工具包
 
 \# git clone https://github.com/openresty/stapxx.git --depth=1 /opt/stapxx
+
 \# export STAP\_PLUS\_HOME=/opt/stapxx
 \# export PATH=$STAP\_PLUS\_HOME:$STAP\_PLUS\_HOME/samples:$PATH
 
@@ -60,8 +61,11 @@ hello
 ### 绘制火焰图
 
 \# /opt/stapxx/samples/lj-lua-stacks.sxx --arg time=120 --skip-badvars -x \`ps --no-headers -fC nginx|awk '/worker/  {print$2}'| shuf | head -n 1\` > /tmp/tmp.bt （-x 是要抓的进程的 pid， 探测结果输出到 tmp.bt）
+
 \# /opt/openresty-systemtap-toolkit/fix-lua-bt tmp.bt > /tmp/flame.bt  (处理 lj-lua-stacks.sxx 的输出，使其可读性更佳)
+
 \# /opt/FlameGraph/stackcollapse-stap.pl /tmp/flame.bt > /tmp/flame.cbt
+
 \# /opt/FlameGraph/flamegraph.pl /tmp/flame.cbt > /tmp/flame.svg
 
 为了突出效果，建议在运行stap++的时候，使用压测工具，以便采集足够的样本
