@@ -54,10 +54,18 @@ Frame 的结构：
      |                     Payload Data continued ...                |
      +---------------------------------------------------------------+
 
-一个标准的websocket message 算一个payload, 一个payload 会按大小拆成Frame，一个Frame 由FIN 标记位标记是否结束。
+一个标准的websocket message 会按大小拆成Frame，一个Frame 由FIN 标记位标记是否结束。
+
+RFC 上对拆message 有下面描述：
+
+EXAMPLE: For a text message sent as three fragments, the first
+      fragment would have an opcode of 0x1 and a FIN bit clear, the
+      second fragment would have an opcode of 0x0 and a FIN bit clear,
+      and the third fragment would have an opcode of 0x0 and a FIN bit
+      that is set.
 
 
-一个帧的解析过程，golang 的代码解析非常的好直观，好理解，按顺序一部分一部分解析：
+一个帧的解析过程，golang 的代码解析非常的好直观，好理解，按顺序一部分一部分解析帧头：
 ```
 func (c *Conn) advanceFrame() (int, error) {
 	// 1. Skip remainder of previous frame.
