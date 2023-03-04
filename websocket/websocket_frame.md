@@ -1,4 +1,4 @@
-# websocket 一些玩法
+# websocket 协议的解包
 
 ## websocket 协议的优点
 websocket 协议是基于http1.1 实现的用于长连接协议，相比grpc 等一般cdn 动态加速支持的比较好，更便宜，有非常多有点。
@@ -256,5 +256,4 @@ func (c *Conn) advanceFrame() (int, error) {
 ```
 
 
-## websocket 协议高级玩法
 
