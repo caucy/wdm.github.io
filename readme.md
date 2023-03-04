@@ -14,5 +14,7 @@
 ### k8s
 
 ### 网络
+[websocket的握手和解包](websocket/websocket_frame.md)
+[websocket当4层/7层代码跑]
 
 ### 其他
