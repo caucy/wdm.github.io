@@ -1,5 +1,7 @@
-## websocket 
-websocket 协议是基于http1.1 实现的用于长连接协议，相比grpc 等一般cdn 动态加速支持的比较好，有非常多有点。
+# websocket 为啥比 grpc 用的更广
+
+## websocket 协议的优点
+websocket 协议是基于http1.1 实现的用于长连接协议，相比grpc 等一般cdn 动态加速支持的比较好，更便宜，有非常多有点。
 
 ### websocket 协议介绍
 参考https://www.rfc-editor.org/rfc/rfc6455
