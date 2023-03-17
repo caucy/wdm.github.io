@@ -44,26 +44,31 @@ dpkg -l|grep debug
 
 ### 下载各工具包
 
-\# git clone https://github.com/openresty/stapxx.git --depth=1 /opt/stapxx
-\# export STAP\_PLUS\_HOME=/opt/stapxx
-\# export PATH=$STAP\_PLUS\_HOME:$STAP\_PLUS\_HOME/samples:$PATH
+git clone https://github.com/openresty/stapxx.git --depth=1 /opt/stapxx
 
-\# stap++ -e 'probe begin { println("hello") exit() }'
+export STAP\_PLUS\_HOME=/opt/stapxx
+
+export PATH=$STAP\_PLUS\_HOME:$STAP\_PLUS\_HOME/samples:$PATH
+
+stap++ -e 'probe begin { println("hello") exit() }'
 
 hello
 
 
-\# git clone https://github.com/openresty/openresty-systemtap-toolkit.git --depth=1 /opt/openresty-systemtap-toolkit
+git clone https://github.com/openresty/openresty-systemtap-toolkit.git --depth=1 /opt/openresty-systemtap-toolkit
 
-\# git clone https://github.com/brendangregg/FlameGraph.git --depth=1 /opt/FlameGraph
+git clone https://github.com/brendangregg/FlameGraph.git --depth=1 /opt/FlameGraph
 
 ### 绘制火焰图
+```
+/opt/stapxx/samples/lj-lua-stacks.sxx --arg time=120 --skip-badvars -x \`ps --no-headers -fC nginx|awk '/worker/  {print$2}'| shuf | head -n 1\` > /tmp/tmp.bt （-x 是要抓的进程的 pid， 探测结果输出到 tmp.bt）
 
-\# /opt/stapxx/samples/lj-lua-stacks.sxx --arg time=120 --skip-badvars -x \`ps --no-headers -fC nginx|awk '/worker/  {print$2}'| shuf | head -n 1\` > /tmp/tmp.bt （-x 是要抓的进程的 pid， 探测结果输出到 tmp.bt）
-\# /opt/openresty-systemtap-toolkit/fix-lua-bt tmp.bt > /tmp/flame.bt  (处理 lj-lua-stacks.sxx 的输出，使其可读性更佳)
-\# /opt/FlameGraph/stackcollapse-stap.pl /tmp/flame.bt > /tmp/flame.cbt
-\# /opt/FlameGraph/flamegraph.pl /tmp/flame.cbt > /tmp/flame.svg
+/opt/openresty-systemtap-toolkit/fix-lua-bt tmp.bt > /tmp/flame.bt  (处理 lj-lua-stacks.sxx 的输出，使其可读性更佳)
 
+/opt/FlameGraph/stackcollapse-stap.pl /tmp/flame.bt > /tmp/flame.cbt
+
+/opt/FlameGraph/flamegraph.pl /tmp/flame.cbt > /tmp/flame.svg
+```
 为了突出效果，建议在运行stap++的时候，使用压测工具，以便采集足够的样本
 
 \# ab -n 10000 -c 100 -k http://localhost/
