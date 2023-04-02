@@ -45,6 +45,47 @@ grpc WithContextDialer 可以传递一个回调函数，返回实现net.Conn 接
 	var conn *grpc.ClientConn
 	conn, err := grpc.Dial(":xxx", grpc.WithInsecure(), wsDial)
 ```
+协议的封装也比较简单，实现net.Conn 接口接口
+```
+type Conn interface {
+	Read(b []byte) (n int, err error)
+	Write(b []byte) (n int, err error)
+	Close() error
+	LocalAddr() Addr
+	RemoteAddr() Addr
+	SetDeadline(t time.Time) error
+	SetReadDeadline(t time.Time) error
+	SetWriteDeadline(t time.Time) error
+}
+```
 
-websocket server 握手结束后，按相同封装解封装即可。
+自定义一个websocketConn的封装
+```
+type wsConn struct {
+	conn *websocket.Conn
+}
+
+// 最核心的是Read/Write，其他都继承即可
+
+func(w* wsConn) Read(b []byte)(n int, err error){
+	_, p, err := w.conn.ReadMessage()// 后面可以加对opcode 的处理
+	if err != nil{
+		return 0, err
+	}
+	return coyy(b,p), nil
+}
+
+func (w * wsConn)Write(h []byte)(n int, err error){
+	err = w.conn.WriteMessage(wehsocket.BinaryMessage, b)
+	if err != nil{
+		return 0, err
+	}
+	return len(b), nil
+}
+
+
+```
+
+
+websocket server 握手结束后，按相同封装解封装copy 流量到grpc server 即可。
 
