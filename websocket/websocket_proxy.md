@@ -68,7 +68,7 @@ type wsConn struct {
 // 最核心的是Read/Write，其他都继承即可
 
 func(w* wsConn) Read(b []byte)(n int, err error){
-	_, p, err := w.conn.ReadMessage()// 后面可以加对opcode 的处理
+	_, p, err := w.conn.ReadMessage()// 后面可以加对opcode 的处理，也可以写成任何编码格式
 	if err != nil{
 		return 0, err
 	}
