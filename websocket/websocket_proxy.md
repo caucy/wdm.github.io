@@ -46,3 +46,5 @@ grpc WithContextDialer 可以传递一个回调函数，返回实现net.Conn 接
 	conn, err := grpc.Dial(":xxx", grpc.WithInsecure(), wsDial)
 ```
 
+websocket server 握手结束后，按相同封装解封装即可。
+
