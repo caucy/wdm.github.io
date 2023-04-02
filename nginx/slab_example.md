@@ -9,11 +9,49 @@ nginx 共享内存主要三种方式
 * mmap /dev/zero
 * shmctl 
 
-nginx 通过宏判断到底选哪种实现，一般linux 选第一种方式, 具体可以参考[ngx_shm_alloc](https://github.com/nginx/nginx/blob/a64190933e06758d50eea926e6a55974645096fd/src/os/unix/ngx_shmem.c)
+nginx 通过宏判断到底选哪种实现，一般linux 选第一种方式, 具体可以参考 [ngx_shm_alloc](https://github.com/nginx/nginx/blob/a64190933e06758d50eea926e6a55974645096fd/src/os/unix/ngx_shmem.c)
 
 
 
-### 2. 共享内存的api
+### 2. 共享内存的几个重要结构
+
+* ngx_shm_t，ngx_shm_zone_t 什么区别？
+
+
+一个ngx_shm_zone_t来管理一块共享内存，有个内存扩展数据和初始化回调函数
+
+
+* shm_t 是最底层的内存描述结构，api：
+```
+typedef struct {
+    u_char      *addr;
+    size_t       size;
+    ngx_str_t    name;
+    ngx_log_t   *log;
+    ngx_uint_t   exists;   /* unsigned  exists:1;  */
+} ngx_shm_t;
+
+// 申请和释放
+ngx_int_t ngx_shm_alloc(ngx_shm_t *shm);
+void ngx_shm_free(ngx_shm_t *shm);
+```
+* ngx_shm_zone_t 
+
+```
+struct ngx_shm_zone_s {
+    void                     *data; // 可以自定义用户data
+    ngx_shm_t                 shm;
+    ngx_shm_zone_init_pt      init;
+    void                     *tag;
+    void                     *sync;
+    ngx_uint_t                noreuse;  /* unsigned  noreuse:1; */
+};
+
+ngx_shm_zone_t *ngx_shared_memory_add(ngx_conf_t *cf, ngx_str_t *name,
+    size_t size, void *tag); // 初始化一块共享内存
+
+```
+ngx_shared_memory_add 会返回ngx_shm_zone_s，初始化过程主要是调用类似ngx_slab_alloc 申请内存 和 共享内存里数据结构（类似红黑树）的初始化
 
 
 
