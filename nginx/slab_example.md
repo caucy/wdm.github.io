@@ -9,7 +9,7 @@ nginx 共享内存主要三种方式
 * mmap /dev/zero
 * shmctl 
 
-nginx 通过宏判断到底选哪种实现，一般linux 选第一种方式, 具体可以参考(ngx_shm_alloc)["https://github.com/nginx/nginx/blob/a64190933e06758d50eea926e6a55974645096fd/src/os/unix/ngx_shmem.c"]
+nginx 通过宏判断到底选哪种实现，一般linux 选第一种方式, 具体可以参考[ngx_shm_alloc](https://github.com/nginx/nginx/blob/a64190933e06758d50eea926e6a55974645096fd/src/os/unix/ngx_shmem.c)
 
 
 
