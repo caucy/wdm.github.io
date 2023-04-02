@@ -3,7 +3,7 @@
 ## 0. nginx 共享内存
 
 ### 1. 共享内存的实现方式
-nginx 共享内存主要三种方式
+nginx 共享内存主要三种实现方式
 
 * mmap anon 
 * mmap /dev/zero
