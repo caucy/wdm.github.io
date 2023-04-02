@@ -1,7 +1,79 @@
-# nginx 多进程通过slab配置共享
+# nginx 操作多进程共享内存
+
+## 0. nginx 共享内存
+
+### 1. 共享内存的实现方式
+nginx 共享内存主要三种方式
+
+* mmap anon 
+* mmap /dev/zero
+* shmctl 
+
+nginx 通过宏判断到底选哪种实现，一般linux 选第一种方式, 具体可以参考(ngx_shm_alloc)["https://github.com/nginx/nginx/blob/a64190933e06758d50eea926e6a55974645096fd/src/os/unix/ngx_shmem.c"]
 
 
-## 1. slab 核心代码
+
+### 2. 共享内存的api
+
+
+
+## 1. 使用atomic 
+
+### atomic 的api
+从语义上主要是 set、get、add、cas
+
+```
+#define ngx_atomic_cmp_set(lock, old, set)        __sync_bool_compare_and_swap(lock, old, set)
+#define ngx_atomic_fetch_add(value, add)          __sync_fetch_and_add(value, add)
+#define ngx_memory_barrier()                      __sync_synchronize() 
+#define ngx_cpu_pause()                           __asm__("pause") 
+```
+
+### event.c 中有对全局连接数的一个很好的封装demo
+
+```
+// 1， 连接初始化
+ngx_atomic_t   ngx_stat_accepted0;
+ngx_atomic_t  *ngx_stat_accepted = &ngx_stat_accepted0;
+ngx_atomic_t   ngx_stat_handled0;
+ngx_atomic_t  *ngx_stat_handled = &ngx_stat_handled0;
+
+// 2，共享内存的申请
+
+typedef struct {
+    u_char      *addr;
+    size_t       size;
+    ...
+} ngx_shm_t;
+ngx_int_t ngx_shm_alloc(ngx_shm_t *shm);
+void ngx_shm_free(ngx_shm_t *shm);
+
+// 3，连接的操作
+
+shm.size = size;
+ngx_str_set(&shm.name, "nginx_shared_zone");
+shm.log = cycle->log;
+
+if (ngx_shm_alloc(&shm) != NGX_OK) {
+    return NGX_ERROR;
+}
+
+shared = shm.addr;
+...
+ngx_stat_accepted = (ngx_atomic_t *) (shared + 3 * cl);
+ngx_stat_handled = (ngx_atomic_t *) (shared + 4 * cl);
+ngx_stat_requests = (ngx_atomic_t *) (shared + 5 * cl);
+ngx_stat_active = (ngx_atomic_t *) (shared + 6 * cl);
+ngx_stat_reading = (ngx_atomic_t *) (shared + 7 * cl);
+ngx_stat_writing = (ngx_atomic_t *) (shared + 8 * cl);
+ngx_stat_waiting = (ngx_atomic_t *) (shared + 9 * cl);
+
+```
+
+
+## 2. 使用slab 算法操作共享内存
+
+### 2.1 slab 算法的经典步骤
 
 ```
 
@@ -71,11 +143,17 @@ do {
 } while (node);
 ```
 
-## 2. 比较常见的场景
-### 1. 限流场景
+## 3. 比较常见的场景
+
+### 3.0 选哪种共享进程的方式
+atomic 适合简单计数
+
+slab 适合key value，扩展性更好
+
+### 3.1. 限流场景
 限流的key 是location，value 是计数
 
-### 2. 策略中心
+### 3.2. 策略中心
 红黑树的key 是策略名,红黑树的data 是策略，可以放一个json,策略可以增删改查，但是操作需要加锁。动态变更可以暴露api接口。
 
 
