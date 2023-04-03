@@ -9,6 +9,8 @@
 
 [nginx 共享内存的常见使用方式和原理](nginx/shm_example.md)
 
+[nginx lua 交互一些常见写法]
+
 [nginx 常见的内存泄露写法]
 
 ### golang
