@@ -191,9 +191,6 @@ int main (int argc, char *argv[])
 ```
 
 
-### 两个hash 的demo
-
-
 ### 如何发现命中了不对的server
 
 比较明显的是，如果没开h2,会404, virtual server 开了h2, 但是default server 没开，会命中h2 连h1 的错。
@@ -204,6 +201,40 @@ int main (int argc, char *argv[])
 ```
 
 ### nginx 如何觉得用哪个server 块的？
+
+#### 1. nginx parse conf 
+1. 创建ngx_http_conf_ctx_t 并初始化
+2. 递归调用ngx_conf_parse 完成server upstream 配置加载
+3. 调用ngx_http_optimize_server 将server 块关联到 ngx_http_conf_addr_t 去，init_listen 会将ngx_http_conf_addr_t 关联到每个request.connection去，关联到
+ngx_http_addr_conf_s。除了4指针数组外，还生成server 配置的hash表，在ngx_http_conf_addr_t 里面的virtual_server 里面。
+
+server 块需要关注下面这个数据结构hash wc_header wc_tail ，key 是serverName，value 是server_conf:
+```
+typedef struct {
+    ngx_http_listen_opt_t      opt;
+
+    unsigned                   protocols:3;
+    unsigned                   protocols_set:1;
+    unsigned                   protocols_changed:1;
+
+    ngx_hash_t                 hash;
+    ngx_hash_wildcard_t       *wc_head;
+    ngx_hash_wildcard_t       *wc_tail;
+
+#if (NGX_PCRE)
+    ngx_uint_t                 nregex;
+    ngx_http_server_name_t    *regex;
+#endif
+
+    /* the default server configuration for this address:port */
+    ngx_http_core_srv_conf_t  *default_server;
+    ngx_array_t                servers;  /* array of ngx_http_core_srv_conf_t */
+} ngx_http_conf_addr_t;
+```
+
+
+#### 2. nginx ngx_http_set_virtual_server 给connection 设置srv_conf;
+
 
 nginx 通过 [ngx_http_set_virtual_server](https://github.com/nginx/nginx/blob/bfc5b35827903a3c543b58e4562db8b62021c164/src/http/ngx_http_request.c#L2191) 觉得选哪个server 块。
 
@@ -293,7 +324,6 @@ ngx_http_set_virtual_server(ngx_http_request_t *r, ngx_str_t *host)
 上面这段代码的意思，主要是设置request.clcf 的srv_conf的时候。如果有sni, 会用sni 找virtual_server，找到了就用 virtual_server，找不到命中default_server。如果没有sni,
 会用host 去找virtual_server，如果找到了直接使用，找不到用default server.
 
-### 如何实现让一个端口的不同server 是否开启h2 互不干扰？
-未完待续
+
 
 
