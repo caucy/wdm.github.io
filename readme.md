@@ -1,6 +1,10 @@
 ## 文章列表
 
 ### 1. nginx
+[nginx 编译成静态库调试自己的代码]
+
+[用gtest/prove 写nginx 单测]
+
 [nginx 使用哪个server](nginx/find_virtual_server.md)
 
 [lua 性能分析](nginx/lua_performance.md)
