@@ -1,7 +1,7 @@
 ## 文章列表
 
 ### 1. nginx
-[nginx 编译成静态库调试自己的代码]
+[nginx 编译成静态库调试自己的代码](nginx/nginx_as_static.md)
 
 [用gtest/prove 写nginx 单测]
 
