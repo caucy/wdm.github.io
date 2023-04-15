@@ -10,10 +10,11 @@
 3. 将.o 文件合并成.a 文件
 ar -rc libnginx.a `find objs -name *.o`
 
-ranlib libfoo.a  # 在更新静态库成员之后，对静态库的成员“__.SYMDEF”进行更新（更新库的符号索引表)
 
 4. 准备头文件，使用静态库
-cp `find src -name *.h` /usr/include/nginx/
+```
+cp `find src -name *.h` /usr/include/nginx/ # 注意windows 文件反复覆盖问题
+```
 
 ## 使用nginx 静态库写功能函数
 
