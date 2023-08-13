@@ -13,9 +13,9 @@
 
 [nginx lua 交互一些常见写法](nginx/lua_c.md)
 
-[nginx 常见的内存泄露写法]
+[参考nginx-lua 实现replace reqeust body]
 
-[nginx 自定义变量的读取]
+[参考nginx-lua 实现body-filter replace response body]
 
 
 ### 2. k8s
