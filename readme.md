@@ -13,7 +13,7 @@
 
 [nginx lua 交互一些常见写法](nginx/lua_c.md)
 
-[参考nginx-lua 实现replace reqeust body]
+[参考nginx-lua 实现replace reqeust body](nginx/repalce_request_body.md)
 
 [参考nginx-lua 实现body-filter replace response body]
 
