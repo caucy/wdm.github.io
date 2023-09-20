@@ -17,7 +17,7 @@
 
 [参考nginx-lua 实现body-filter replace response body](replace_response_body.md)
 
-[获取4层ip](nginx/server_addr.md)
+[4 7 层如果做ip传递的](nginx/server_addr.md)
 
 ### 2. k8s
 
