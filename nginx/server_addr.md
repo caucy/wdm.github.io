@@ -1,8 +1,8 @@
 # 4 7 层如果做ip传递的
 
 ## 背景
-流量经过lvs 后，如何将vip 传递后rs 这是一个比较实在的问题，在一些业务逻辑里，rs可能是需要vip的。目前方案主要有proxy_protocal 和 toa,
-一个主要的实现是pp 协议，一个是通过tcp option, 这两种方式都可以实现。
+流量经过lvs 后，如何将vip 传递后rs 这是一个比较实在的问题，在一些业务逻辑里，rs可能是需要vip的。目前方案主要有proxy_protocal, toa, xff
+一个主要的实现是pp 协议，一个是通过tcp option, 这两种方式都可以实现。xff 一般可能被覆盖，不是很可靠，很少用。
 
 ## proxy_protocal 的实现
 一个简单的demo 就可以看到proxy_protocal v1 的原理, 如果80 nginx 开了pp的话，可以用curl 直接访问
@@ -49,6 +49,18 @@ http {
 
 
 ## toa 的实现
+TOA 名字全称是 tcp option address，是 FullNat 模式下能够让后端服务器获取 ClientIP 的一种实现方式，它的基本原理比较简单。
 
-## nginx 获取tcp option
+客户端用户请求数据包到达 LVS 时，LVS 在数据包的 tcp option 中插入 src ip 和 src port 信息。
 
+数据包到达后端服务器（装有 toa 模块）后，应用程序正常调用 getpeername 系统函数来获取连接的源端 IP 地址。
+
+由于在 toa 代码中 hook（修改）了 inet_getname 函数（getpeername 系统调用对应的内核处理函数），该函数会从 tcp option 中获取 lvs 填充的 src 信息。
+
+这样后端服务器应用程序就获取到了真实客户端的 ClientIP，而且对应用程序来说是透明的。
+
+![image](https://github.com/caucy/wdm.github.io/assets/19687952/33613058-85e6-48fd-8117-dfdd14d225d7)
+
+
+### 方案优缺点
+如果用ip 做很重要的业务逻辑，建议还是使用pp，如果仅仅做一般的业务逻辑，toa 就可以满足使用。toa 方案有个比较明显的缺点，tcp option 能被覆盖或者内核模块可能重启等各种原因没启用。
