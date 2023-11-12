@@ -1,6 +1,6 @@
 ## 文章列表
 
-### 1. nginx
+### 1. nginx 开发常用技巧
 [nginx 编译成静态库调试自己的代码](nginx/nginx_as_static.md)
 
 [nginx 使用哪个server](nginx/find_virtual_server.md)
