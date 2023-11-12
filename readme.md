@@ -20,6 +20,7 @@
 [4 7 层如果做ip传递的](nginx/server_addr.md)
 
 ### 2. k8s
+[常见debug 指令](k8s/debug.md)
 
 [如何实现autoport]
 
