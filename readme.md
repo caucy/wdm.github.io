@@ -33,7 +33,7 @@
 
 [如何定位c/c++的内存泄露](nginx/mem_leak.md)
 
-[如何定位线上cpu热点]
+[如何定位线上cpu热点](c/cpu_profile.md)
 
 ### 5.ebpf
 [如何使用ebpf]
