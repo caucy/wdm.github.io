@@ -21,6 +21,8 @@
 
 [shutdown 为啥一直不退出？](nginx/shutdown.md)
 
+[nginx 如何判断tls的时候走h1, h2 ?](nginx/ssl_h2.md)
+
 ### 2. k8s
 [常见debug 指令](k8s/debug.md)
 
