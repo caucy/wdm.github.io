@@ -51,3 +51,6 @@ session 握手的流程：
 
 ## 4. ticket_key 复用方案
 nginx 实现一个定时器，定时去keyserver 去取ticket_key 即可，定期发送一个subrequest。
+
+参考文档：
+1. https://blog.csdn.net/wzj_110/article/details/133241634
