@@ -1,6 +1,6 @@
 ## 文章列表
 
-### 1. nginx 开发常用技巧
+### 1. nginx 开发常用
 [nginx 编译成静态库调试自己的代码](nginx/nginx_as_static.md)
 
 [nginx 使用哪个server](nginx/find_virtual_server.md)
@@ -22,6 +22,8 @@
 [shutdown 为啥一直不退出？](nginx/shutdown.md)
 
 [nginx 如何判断tls的时候走h1, h2 ?](nginx/ssl_h2.md)
+
+[nginx 实现tls session ticket key 共享](nginx/session_ticket.md)
 
 ### 2. k8s
 [常见debug 指令](k8s/debug.md)
