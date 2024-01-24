@@ -52,5 +52,8 @@ session 握手的流程：
 ## 4. ticket_key 复用方案
 nginx 实现一个定时器，定时去keyserver 去取ticket_key 即可，定期发送一个subrequest。
 
+具体更新ticket_key 可以参考lua [ngx_http_lua_ffi_update_ticket_encryption_key](https://github.com/openresty/lua-ssl-nginx-module/blob/master/src/ngx_http_lua_ssl_module.c#L189C1-L189C46) 的实现,核心就是更新ssl_ctx 中的ngx_ssl_session_ticket_key_t
+
+
 参考文档：
 1. https://blog.csdn.net/wzj_110/article/details/133241634
