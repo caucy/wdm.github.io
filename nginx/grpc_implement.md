@@ -106,6 +106,15 @@ data frame 处理流程
               -- handler = ngx_http_v2_state_read_data // 数据没收完
               -- h2c->state->hanlder = ngx_http_v2_state_head // 数据收完了回到探测frame header 的回调去
 
+
+-- 如果request 的header 11阶段处理完了，会调用proxy_module_handler or grpc_module_handler
+
+  -- ngx_http_v2_state_read_data
+    -- if(r->request_body){ngx_http_v2_process_request_body()}
+      -- post_handler 执行read_request_client_body 对应的回调，开始发数据到upstream
+    -- h2c->state->hanlder = ngx_http_v2_state_head
+
+
 ```
 
 
