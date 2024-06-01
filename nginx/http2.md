@@ -47,7 +47,8 @@ ngx_http_v2_write_handler 将h2c->last_out 链表的数据发给client
 
 ## 3. http v2协议request 的hook 流程
 
-**重入的入口是ngx_http_v2_read_handler**/
+**重入的入口是ngx_http_v2_read_handler, ngx_http_v2_send_output_queue 发送给client**/
+
 
 数据的读都在这个函数，判断frame 是否完成在状态机完成
 
@@ -118,6 +119,8 @@ data frame 处理流程
     -- ngx_http_v2_state_head
         -- h2c->state.hanlder = ngx_http_v2_state_data
           -- ngx_http_v2_state_read_data // 真实read data, 长度没收完会设置handler = ngx_http_v2_state_read_data
+              -- ngx_http_v2_process_request_body
+              -- post_handler()
             --ngx_http_v2_state_complete
               -- handler = ngx_http_v2_state_read_data // 数据没收完
               -- h2c->state->hanlder = ngx_http_v2_state_head // 数据收完了回到探测frame header 的回调去
