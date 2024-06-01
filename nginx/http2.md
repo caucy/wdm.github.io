@@ -136,6 +136,23 @@ data frame 处理流程
 ```
 
 
-## 3. http2 协议response 的hook 流程
+## 4. http2 协议response 的hook 流程
 
+响应的流程比请求的流程要简单，ngx_http_v2_header_filter 中替换了send_chain = ngx_http_v2_send_chain
+
+```
+  -- ngx_http_upstream_handler
+    -- ngx_http_upstream_process_header
+      -- **header_filter**
+      --......
+      --ngx_http_v2_header_filter
+        -- send_chain = ngx_http_v2_send_chain
+          
+      -- **body_filter**
+        -- ngx_write_filter
+          -- send_chain() -- ngx_http_v2_send_chain // 将frame 挂到h2c->last_out去并发出去
+  
+```
+
+ngx_http_v2_send_chain 将frame 挂到h2c->last_out去并发出去，ngx_http_v2_state_read_data也会检查h2c->last_out并发送
 
