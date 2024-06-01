@@ -31,7 +31,7 @@
 
 [nginx chunked数据如何做安全防护](nginx/chunked.md)
 
-[nginx ws 模块如何做安全防护](nginx/ws.md)
+[nginx ws 模块如何做安全防护](nginx/ws_waf.md)
 
 [nginx quic协议集成的设计与实现](nginx/quic.md)
 
