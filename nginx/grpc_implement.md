@@ -40,12 +40,13 @@ ngx_http_v2_write_handler 将h2c->last_out 链表的数据发给client
             -- 11 个header 阶段
               -- ngx_http_proxy_handler 开始发送数据给upstream
                 -- ngx_http_upstream_init
-                  -- r->read_event_handler = **ngx_http_upstream_read_request_handler (重入点，不断收request 数据)**
+                  -- r->read_event_handler = ngx_http_upstream_read_request_handler
 
 ```
-
+**ngx_http_upstream_read_request_handler**  是重入点，不断收request 数据
 
 ## 3. http v2协议request 的hook 流程
+
 **重入的入口是ngx_http_v2_read_handler**/
 
 数据的读都在这个函数，判断frame 是否完成在状态机完成
@@ -129,9 +130,7 @@ data frame 处理流程
       -- post_handler 执行read_request_client_body 对应的回调，开始发数据到upstream
     -- h2c->state->hanlder = ngx_http_v2_state_head
 
-
 ```
-
 
 
 ## 3. http2 协议response 的hook 流程
