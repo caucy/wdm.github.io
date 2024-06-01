@@ -29,9 +29,24 @@ ngx_http_v2_write_handler 将h2c->last_out 链表的数据发给client
 4. h2->connection 跟client 真实的连接, r->stream->h2c->connection 可以找到真正的connection
 5. h2->stream 是一个数组，可以根据streams_index 找到stream
 
+## 3. http v1 request 的处理流程
+```
+-- ngx_http_init_connection
+  -- ngx_http_wait_request_handler
+    -- ngx_http_process_request_line
+      -- ngx_http_parse_request_line 直到header 处理完
+        -- ngx_http_process_request_headers
+          -- ngx_http_process_request
+            -- 11 个header 阶段
+              -- ngx_http_proxy_handler 开始发送数据给upstream
+                -- ngx_http_upstream_init
+                  -- r->read_event_handler = /** ngx_http_upstream_read_request_handler (重入点，不断收request 数据)**/
 
-## 3. http协议request 的hook 流程
-/* 重入的入口是ngx_http_v2_read_handler */
+```
+
+
+## 3. http v2协议request 的hook 流程
+/** 重入的入口是ngx_http_v2_read_handler **/
 
 数据的读都在这个函数，判断frame 是否完成在状态机完成
 
