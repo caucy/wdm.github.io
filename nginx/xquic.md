@@ -17,7 +17,7 @@ xqc_h3_stream_t 包含一个xqc_stream_s，
  xqc_conn_server_init_path_addr 初始化path list 是什么？path 参数默认是0
 
 ## 2. 连接初始流程
- 
+```
 -- ngx_xquic_process_init 进程启动阶段
     -- rev->handler = ngx_xquic_event_recv; bind的fd 添加read 回调
         
@@ -33,8 +33,10 @@ bind fd有read event 被触发，创建quic connection
                              -- c->write->handler = ngx_http_xquic_write_handler;
                      -- xqc_conn_set_transport_user_data（绑定xqc_connection_t 和ngx_http_xquic_connection_t）
                      -- xqc_conn_set_alp_user_data
+```
 
 ## 3. header/body读写处理
+```
     -- ngx_http_xquic_read_handler (读fd 的数据)
         -- ngx_http_xquic_session_process_packet（复用cid）
             -- xqc_engine_packet_process
@@ -53,3 +55,4 @@ bind fd有read event 被触发，创建quic connection
                         -- ngx_http_v3_state_headers_complete
                             -- ngx_http_v3_run_request
                                 -- ngx_http_handler 开始走11个nginx 阶段
+```
