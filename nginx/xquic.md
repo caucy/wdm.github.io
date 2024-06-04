@@ -22,17 +22,17 @@ xqc_h3_stream_t 包含一个xqc_stream_s，
     -- rev->handler = ngx_xquic_event_recv; bind的fd 添加read 回调
         
 bind fd有read event 被触发，创建quic connection
--- ngx_xquic_event_recv
-    -- ngx_xquic_dispatcher_process_packet 将buf 关联cid 的数据结构（每个udp 包都有cid 位）
-        -- xqc_engine_packet_process 处理每个package，设置
-            -- xqc_conn_server_create 
-                -- **ngx_xquic_conn_accept** 作用：创建xqc_connection_t 
-                    -- ngx_http_v3_create_connection
-                        -- ngx_http_xquic_init_connection
-                            -- c->read->handler = ngx_http_xquic_readmsg_handler;(后面给换成ngx_http_xquic_read_handler)
-                            -- c->write->handler = ngx_http_xquic_write_handler;
-                    -- xqc_conn_set_transport_user_data（绑定xqc_connection_t 和ngx_http_xquic_connection_t）
-                    -- xqc_conn_set_alp_user_data
+ -- ngx_xquic_event_recv
+     -- ngx_xquic_dispatcher_process_packet 将buf 关联cid 的数据结构（每个udp 包都有cid 位）
+         -- xqc_engine_packet_process 处理每个package，设置
+             -- xqc_conn_server_create 
+                 -- **ngx_xquic_conn_accept** 作用：创建xqc_connection_t 
+                     -- ngx_http_v3_create_connection
+                         -- ngx_http_xquic_init_connection
+                             -- c->read->handler = ngx_http_xquic_readmsg_handler;(后面给换成ngx_http_xquic_read_handler)
+                             -- c->write->handler = ngx_http_xquic_write_handler;
+                     -- xqc_conn_set_transport_user_data（绑定xqc_connection_t 和ngx_http_xquic_connection_t）
+                     -- xqc_conn_set_alp_user_data
 
 ## 3. header/body读写处理
     -- ngx_http_xquic_read_handler (读fd 的数据)
