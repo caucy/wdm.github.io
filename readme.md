@@ -38,8 +38,6 @@
 
 [websocket当4层代理跑私有协议](websocket/websocket_proxy.md)
 
-[nginx 如何实现grpc 协议转发](nginx/grpc_implement.md)
-
 [nginx http2模块请求和响应的理解](nginx/http2.md)
 
 [nginx chunked数据如何做安全防护](nginx/chunked.md)
