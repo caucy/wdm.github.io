@@ -44,25 +44,34 @@
 
 [nginx ws 模块如何做安全防护](nginx/ws_waf.md)
 
-[nginx quic协议集成的设计与实现](nginx/quic.md)
+[quic协议简介和分析](nginx/xquic.md)
+
+[nginx xquic协议集成的设计与实现](nginx/xquic.md)
+
+[nginx chrome quic 设计与实现](nginx/chrome_quic.md)
+
+### 4. openssl 编程
 
 
-### 4. 性能分析
+### 5. 性能分析
 
 [如何定位c/c++的内存泄露](nginx/mem_leak.md)
 
 [如何定位线上cpu热点](c/cpu_profile.md)
 
-### 5.ebpf
+### 6.ebpf
 [如何使用ebpf]
 
 [cilium 实现]
 
-### 6.安全
+### 7.安全
 [云高防如何防cc攻击](waf/cc.md)
 
 [云waf的实现](waf/waf.md)
 
-### 6. rpc 相关
+### 8. 踩坑系列
+[lua 奇葩的空洞数组](bug/lua_array.md)
 
-### 7. 其他
+[golang http transport 错误使用的泄漏](bug/golang_transport.md)
+
+[resty dsl 的in是 on 遍历](bug/dsl.md)
