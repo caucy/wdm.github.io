@@ -17,7 +17,7 @@ xqc_h3_stream_t 包含一个xqc_stream_s，
  xqc_conn_server_init_path_addr 初始化path list 是什么？path 参数默认是0
 
 
-## 2. 连接初始流程
+## 2. 连接初始化流程
 ```
   -- ngx_xquic_process_init 进程启动阶段
   
@@ -71,4 +71,8 @@ bind fd有read event 被触发，创建quic connection
 ```
 
 应用程序自己实现收udp ngx_http_xquic_read_handler，自己读fd；
-ngx_http_v3_request_read_notify 需要自己从stream中解应用层数据
+
+ngx_http_v3_request_read_notify 需要自己从stream中解应用层数据，区分应用层的header 还是body 是否收发完毕。
+
+一般集群都是默认buffer request，ngx_http_v3_process_request_body 会回调回upstream 的read_client_request_body 的post_handler 也就是upstream_init，然后转发数据到upstream
+
