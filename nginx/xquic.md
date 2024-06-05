@@ -45,7 +45,7 @@ bind fd有read event 被触发，创建quic connection
                      
                      -- xqc_conn_set_alp_user_data
 ```
-
+**ngx_http_xquic_init_connection** 会给udp socket 挂一个读写回调
 
 
 ## 3. header/body读写处理
@@ -62,17 +62,18 @@ bind fd有read event 被触发，创建quic connection
                                     -- xqc_h3_stream_process_in
     -- xqc_h3_stream_process_bidi
         -- xqc_h3_stream_process_bidi_payload
-            -- **xqc_h3_stream_process_request** (识别出frame 是data 还是header 还是push)
+            -- xqc_h3_stream_process_request (识别出frame 是data 还是header 还是push)
                 -- xqc_h3_request_on_recv_header
                     -- **ngx_http_v3_request_read_notify**(处理header body)
                         -- ngx_http_v3_state_headers_complete
                             -- ngx_http_v3_run_request
                                 -- ngx_http_handler 开始走11个nginx 阶段
 ```
+**xqc_h3_stream_process_request** 会识别出stream 的frame 是data，header 还是push
 
-应用程序自己实现收udp ngx_http_xquic_read_handler，自己读fd；
+应用程序自己实现收udp **ngx_http_xquic_read_handler**，自己读fd；
 
-ngx_http_v3_request_read_notify 需要自己从stream中解应用层数据，区分应用层的header 还是body 是否收发完毕。
+**ngx_http_v3_request_read_notify** 需要自己从stream中解应用层数据，区分应用层的header 还是body 是否收发完毕。
 
-一般集群都是默认buffer request，ngx_http_v3_process_request_body 会回调回upstream 的read_client_request_body 的post_handler 也就是upstream_init，然后转发数据到upstream
+一般集群都是默认buffer request，**ngx_http_v3_process_request_body** 会回调回upstream 的read_client_request_body 的post_handler 也就是upstream_init，然后转发数据到upstream
 
