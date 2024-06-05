@@ -1,4 +1,4 @@
-# quic 在nignx 的实现
+# xquic 在nignx 的实现
  
 ## 1. 重要的数据结构
  ngx_xquic_recv_packet_t 
