@@ -1,6 +1,6 @@
 ## 文章列表
 
-### 1. nginx 开发常用
+### nginx 开发常用
 [nginx 编译成静态库调试自己的代码](nginx/nginx_as_static.md)
 
 [nginx 使用哪个server](nginx/find_virtual_server.md)
@@ -28,48 +28,52 @@
 [nginx 实现keyless 减少ssl握手开销](nginx/keyless.md)
 
 
-### 2. k8s
+### k8s
 [常见debug 指令](k8s/debug.md)
 
 [如何实现autoport]
 
-### 3. 协议相关
+### ws 协议
 [websocket的握手和解包](websocket/websocket_frame.md)
 
 [websocket当4层代理跑私有协议](websocket/websocket_proxy.md)
-
-[nginx http2模块请求和响应的理解](nginx/http2.md)
 
 [nginx chunked数据如何做安全防护](nginx/chunked.md)
 
 [nginx ws 模块如何做安全防护](nginx/ws_waf.md)
 
-[quic协议简介和分析](nginx/xquic.md)
+### http2 + quic 协议
+
+[nginx http2模块请求和响应的理解](nginx/http2.md)
+
+[对quic协议的一些理解](nginx/quic.md)
 
 [nginx xquic协议集成的设计与实现](nginx/xquic.md)
 
 [nginx chrome quic 设计与实现](nginx/chrome_quic.md)
 
-### 4. openssl 编程
+### openssl 编程
+
+### rust 编程
 
 
-### 5. 性能分析
+### 性能分析
 
 [如何定位c/c++的内存泄露](nginx/mem_leak.md)
 
 [如何定位线上cpu热点](c/cpu_profile.md)
 
-### 6.ebpf
+### ebpf
 [如何使用ebpf]
 
 [cilium 实现]
 
-### 7.安全
+### 安全
 [云高防如何防cc攻击](waf/cc.md)
 
 [云waf的实现](waf/waf.md)
 
-### 8. 踩坑系列
+### 踩坑系列
 [lua 奇葩的空洞数组](bug/lua_array.md)
 
 [golang http transport 错误使用的泄漏](bug/golang_transport.md)
