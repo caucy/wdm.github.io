@@ -145,7 +145,7 @@ static ngx_http_v2_handler_pt ngx_http_v2_frame_states[] = {
               -- handler = ngx_http_v2_state_read_data // 数据没收完
                 -- h2c->state->hanlder = ngx_http_v2_state_head // 数据收完了回到探测frame header 的回调去
 ```
-**非grpc streaming stream 的最后一个frame 是END_STREAM Frame**， 收到stream 标记后会回调post_handler, 也就是upstream_init。
+**非grpc的 stream 的最后一个frame 一般是END_STREAM Frame**， 收到stream 标记后会回调post_handler, 也就是upstream_init。
 
 ## 4. http2 协议response 的hook 流程
 
@@ -171,3 +171,4 @@ ngx_http_v2_send_chain 将frame 挂到h2c->last_out去并发出去，ngx_http_v2
 grpc 有几个不同：
 1. grpc module 直接替换了clcf，所以content_phase 阶段不走 ngx_http_proxy_handler，调用grpc_handler
 2. grpc 分unary 和 streaming, 处理流程不同于普通http2
+3. grpc 和quic 都设置了request_body_no_buffering，ngx_http_read_client_request_body会特殊处理
