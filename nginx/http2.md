@@ -39,21 +39,21 @@ ngx_http_v2_write_handler 将h2c->last_out 链表的数据发给client
           -- ngx_http_process_request
             -- 11 个header 阶段
               -- ngx_http_proxy_handler 开始发送数据给upstream
-                -- ngx_http_upstream_init
-                  -- r->read_event_handler = ngx_http_upstream_read_request_handler
+                -- ngx_http_read_client_request_body 默认读完body才调用ngx_http_upstream_init
+                  -- ngx_http_upstream_init
+                  -- 如果proxy_request_buffering off  r->read_event_handler = ngx_http_upstream_read_request_handler
 
 ```
-**ngx_http_upstream_read_request_handler**  是重入点，不断收request 数据
+一般线上**proxy_request_buffering** 都是off
 
-## 3. http v2协议request 的hook 流程
+## 3. http v2协议request 的处理流程
 
-**重入的入口是ngx_http_v2_read_handler, ngx_http_v2_send_output_queue 发送给client**/
+核心函数是**ngx_http_v2_read_handler**, **ngx_http_v2_send_output_queue** 发送给client
 
 
 数据的读都在这个函数，判断frame 是否完成在状态机完成
 
 ```
-
     do {
         p = h2mcf->recv_buffer;
 
@@ -83,8 +83,9 @@ ngx_http_v2_write_handler 将h2c->last_out 链表的数据发给client
     } while (rev->ready);
 ```
 
-state.handler 初始化是 ngx_http_v2_state_preface，然后调用ngx_http_v2_state_headers，
-获取frame 头会根据请求frame 类型调用不同的状态回调
+state.handler 初始化是 **ngx_http_v2_state_preface**，然后调用**ngx_http_v2_state_headers**，
+获取frame 头几个字节，根据请求frame 类型调用不同的状态回调
+
 ```
 static ngx_http_v2_handler_pt ngx_http_v2_frame_states[] = {
     ngx_http_v2_state_data,               /* NGX_HTTP_V2_DATA_FRAME */
@@ -99,42 +100,52 @@ static ngx_http_v2_handler_pt ngx_http_v2_frame_states[] = {
     ngx_http_v2_state_continuation        /* NGX_HTTP_V2_CONTINUATION_FRAME */
 };
 ```
-header frame 处理的流程
+
+/*header frame 处理的流程：*/
+
 ```
 -- ngx_http_v2_read_handler
   -- ngx_http_v2_state_preface
     -- ngx_http_v2_state_head
         -- h2c->state.hanlder = ngx_http_v2_state_headers
+        -- ngx_http_v2_create_stream 创建流
+          -- 创建fake connection + request
         -- ngx_http_v2_state_header_complete
-        -- ngx_http_v2_run_request()-> ngx_http_process_request -> 11个阶段
+          -- ngx_http_v2_run_request() -> ngx_http_process_request
+            -- ...  11个阶段
+            -- ngx_http_proxy_handler
+              -- ngx_http_read_client_request_body
         --ngx_http_v2_state_complete
           -- h2c->state->hanlder = ngx_http_v2_state_head 回到探测frame header 的回调去
-
 ```
 
-data frame 处理流程
+这里有个难理解的点，11个阶段最后一个handler 是proxy_module_handler, 会调用 **ngx_http_read_client_request_body**, 完成读取body后
+回调ngx_http_upstream_init, 那么**ngx_http_read_client_request_body** 如何知道什么时候该stream 读完了，该调用upstream_init ?
+
+```
+-- ngx_http_read_client_request_body
+  -- 初始化request_body，r->request_body 一定不是空指针
+  -- if r->stream -> ngx_http_v2_read_request_body 
+    -- ngx_http_v2_send_window_update 调整window size
+    -- r->read_event_handler = ngx_http_v2_read_client_request_body_handler; 更新r 的回调
+```
+
+**ngx_http_read_client_request_body** 在普通http2 （非grpc）的处理流程中并不会主动调用post_handler 到upstream，那什么时候调用upstream_init?
+
+/*data frame 处理流程:*/
 ```
 -- ngx_http_v2_read_handler
   -- ngx_http_v2_state_preface
     -- ngx_http_v2_state_head
         -- h2c->state.hanlder = ngx_http_v2_state_data
-          -- ngx_http_v2_state_read_data // 真实read data, 长度没收完会设置handler = ngx_http_v2_state_read_data
-              -- ngx_http_v2_process_request_body
-              -- post_handler()
+          -- ngx_http_v2_state_read_data
+              -- ngx_http_v2_process_request_body 如果收到最后data frame , end_flag == 1则调用post_handler
+                -- post_handler(), 此时stream 的所有数据在r->request_body->buf 里面
             --ngx_http_v2_state_complete
               -- handler = ngx_http_v2_state_read_data // 数据没收完
-              -- h2c->state->hanlder = ngx_http_v2_state_head // 数据收完了回到探测frame header 的回调去
-
-
--- 如果request 的header 11阶段处理完了，会调用proxy_module_handler or grpc_module_handler
-
-  -- ngx_http_v2_state_read_data
-    -- if(r->request_body){ngx_http_v2_process_request_body()}
-      -- post_handler 执行read_request_client_body 对应的回调，开始发数据到upstream
-    -- h2c->state->hanlder = ngx_http_v2_state_head
-
+                -- h2c->state->hanlder = ngx_http_v2_state_head // 数据收完了回到探测frame header 的回调去
 ```
-
+**非grpc streaming stream 的最后一个frame 是END_STREAM Frame**， 收到stream 标记后会回调post_handler, 也就是upstream_init。
 
 ## 4. http2 协议response 的hook 流程
 
@@ -156,3 +167,7 @@ data frame 处理流程
 
 ngx_http_v2_send_chain 将frame 挂到h2c->last_out去并发出去，ngx_http_v2_state_read_data也会检查h2c->last_out并发送
 
+## 5. grpc 和普通http2 有什么不同？
+grpc 有几个不同：
+1. grpc module 直接替换了clcf，所以content_phase 阶段不走 ngx_http_proxy_handler，调用grpc_handler
+2. grpc 分unary 和 streaming, 处理流程不同于普通http2
