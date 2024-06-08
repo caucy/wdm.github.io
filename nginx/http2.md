@@ -18,7 +18,7 @@
     -- rev->handler = ngx_http_v2_write_handler
 ```
 
-ngx_http_v2_read_handler 实现循环接受client 的请求，里面有状态机，判断请求frame 类型，bing执行对应回调
+ngx_http_v2_read_handler 实现循环接受client 的请求，里面有状态机，判断请求frame 类型，并执行对应回调
 ngx_http_v2_write_handler 将h2c->last_out 链表的数据发给client
 
 ## 2. 重要的数据结构
