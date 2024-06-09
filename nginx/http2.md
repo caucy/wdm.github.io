@@ -26,7 +26,7 @@ ngx_http_v2_write_handler 将h2c->last_out 链表的数据发给client
 1. h2mcf h2的核心conf，一系列参数
 2. h2c 代表一个h2 对象，有多个stream，每个stream 对应一个http_request 对象，一个fake connection
 3. h2c->state.buffer 缓存链接的数据
-4. h2->connection 跟client 真实的连接, r->stream->h2c->connection 可以找到真正的connection
+4. h2->connection 是client 真实的连接,因为多路复用关联了多个fake connection, r->stream->h2c->connection 可以找到真正的connection
 5. h2->stream 是一个数组，可以根据streams_index 找到stream
 
 ## 3. http v1 unbuffer request 的处理流程
