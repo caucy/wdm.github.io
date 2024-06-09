@@ -29,7 +29,7 @@ ngx_http_v2_write_handler 将h2c->last_out 链表的数据发给client
 4. h2->connection 跟client 真实的连接, r->stream->h2c->connection 可以找到真正的connection
 5. h2->stream 是一个数组，可以根据streams_index 找到stream
 
-## 3. http v1 request 的处理流程
+## 3. http v1 unbuffer request 的处理流程
 ```
 -- ngx_http_init_connection
   -- ngx_http_wait_request_handler
@@ -45,6 +45,7 @@ ngx_http_v2_write_handler 将h2c->last_out 链表的数据发给client
 
 ```
 一般线上**proxy_request_buffering** 都是off
+
 
 ## 3. http v2协议request 的处理流程
 
@@ -171,4 +172,40 @@ ngx_http_v2_send_chain 将frame 挂到h2c->last_out去并发出去，ngx_http_v2
 grpc 有几个不同：
 1. grpc module 直接替换了clcf，所以content_phase 阶段不走 ngx_http_proxy_handler，调用grpc_handler
 2. grpc 分unary 和 streaming, 处理流程不同于普通http2
-3. grpc 和quic 都设置了request_body_no_buffering，ngx_http_read_client_request_body会特殊处理
+3. grpc 和quic 都设置了**request_body_no_buffering**，ngx_http_read_client_request_body会特殊处理
+
+## 6. http1 proxy_request_buffering 的处理流程
+```
+-- ngx_http_proxy_handler 开始发送数据给upstream
+  -- ngx_http_read_client_request_body
+    -- ngx_http_upstream_init
+      -- r->read_event_handler = ngx_http_upstream_read_request_handler
+```
+init_upstream 后 r->read_event_hanlder = **ngx_http_upstream_read_request_handler** 会先读request connection 的数据，再写给u->connection
+
+```
+-- ngx_http_upstream_read_request_handler
+  -- ngx_http_upstream_send_request
+    --ngx_http_upstream_send_request_body
+      -- ngx_http_do_read_client_request_body
+          先循环读r->connection, 然后ngx_output_chain 写数据给upstream
+
+```
+ngx_http_do_read_client_request_body 会识别是否buffer，同时识别h1, h2, h3
+
+## 7.grpc 请求的处理流程, 重要的参数request_body_no_buffering
+grpc 不会加end_stream标记，所以不会调用post_hander, 那**ngx_http_read_client_request_body**后，后续的请求处理流程是怎么样的？
+1. r->read_event_handler = **ngx_http_upstream_read_request_handler**
+2. r->connection 是fake connection, 不会有读事件来了，那read什么时候触发的？
+3. stream->connection 的read_handler 还是ngx_http_v2_read_handler
+4. grpc会设置**request_body_no_buffering=1**，ngx_http_v2_process_request_body 会ngx_post_event触发r->connection 的读回调
+
+```
+r->connection 事件再被触发后：
+-- ngx_http_upstream_read_request_handler
+  ；；；
+  -- ngx_http_do_read_client_request_body 会识别出h2 & r->request_body_no_buffering
+    -- ngx_http_v2_read_unbuffered_request_body
+      -- 设置u->out = r->request_body
+      -- ngx_output_chain将u->out 发送出去
+```
