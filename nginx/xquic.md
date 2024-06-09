@@ -1,8 +1,7 @@
 # xquic 在nignx 的实现
  
 ## 1. 重要的数据结构
- ngx_xquic_recv_packet_t 
-    里面有一次read的原始接受的udp 数据，buf 最大1500
+ ngx_xquic_recv_packet_t 里面有一次read的原始接受的udp 数据，buf 最大1500
 
 xqc_engine_t conns_hash 维护所有的连接xqc_connection_t
  
@@ -10,11 +9,7 @@ xqc_connection_t 一个抽象的quic 连接接通过cid 串联， user_data 是n
  
 xqc_stream_s stream_data_in 存frame 数据
 
-xqc_h3_stream_t 包含一个xqc_stream_s，
- 
- cid和dcid 的区别？CID 主要由客户端维护，DCID 主要由服务器维护。
- quic 必须走tls？看代码是的
- xqc_conn_server_init_path_addr 初始化path list 是什么？path 参数默认是0
+xqc_h3_stream_t 包含一个xqc_stream_s
 
 
 ## 2. 连接初始化流程
@@ -80,7 +75,7 @@ bind fd有read event 被触发，创建quic connection
 ## 4. upstream 来的数据如何通过quic 发出去？
 upstream来的数据比较简单， header_filter 阶段替换掉send_chain, 实现一个send_quic_chain即可。
 
-## 5. 回顾下nginx 要实现quic，要实现哪些重要的hook点
+## 5. 回顾下nginx 要实现http3，要实现哪些重要的hook点
 1. 进程启动的时候要实现bind 逻辑，逻辑在**ngx_xquic_event_recv** 中
 2. udp 数据来了要有读回调，逻辑在**ngx_http_xquic_read_handler**, 这个函数要实现类似h2的，关联stream, 然后关联http request 的逻辑
 3. request 级别来数据了，需要识别header 是否收完，body 是否收完，会有回调**ngx_http_v3_request_read_notify**
