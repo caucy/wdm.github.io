@@ -195,10 +195,11 @@ ngx_http_do_read_client_request_body 会识别是否buffer，同时识别h1, h2,
 
 ## 7.grpc 请求的处理流程, 重要的参数request_body_no_buffering
 grpc 不会加end_stream标记，所以不会调用post_hander, 那**ngx_http_read_client_request_body**后，后续的请求处理流程是怎么样的？
-1. r->read_event_handler = **ngx_http_upstream_read_request_handler**
-2. r->connection 是fake connection, 不会有读事件来了，那read什么时候触发的？
-3. stream->connection 的read_handler 还是ngx_http_v2_read_handler
-4. grpc会设置**request_body_no_buffering=1**，ngx_http_v2_process_request_body 会ngx_post_event触发r->connection 的读回调
+1. ngx_http_read_client_request_body 发现请求request_body_no_buffering=1，将不会读完body，直接调用upstream_init
+2. r->read_event_handler = **ngx_http_upstream_read_request_handler**
+3. r->connection 是fake connection, 不会有读事件来了，那read什么时候触发的？
+4. stream->connection 的read_handler 还是ngx_http_v2_read_handler
+5. grpc会设置**request_body_no_buffering=1**，ngx_http_v2_process_request_body 会ngx_post_event触发r->connection 的读回调
 
 ```
 r->connection 事件再被触发后：
