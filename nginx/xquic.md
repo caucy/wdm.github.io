@@ -1,13 +1,12 @@
 # xquic 在nignx 的实现
  
 ## 1. 重要的数据结构
- ngx_xquic_recv_packet_t 里面有一次read的原始接受的udp 数据，buf 最大1500
 
 xqc_engine_t conns_hash 维护所有的连接xqc_connection_t
  
-xqc_connection_t 一个抽象的quic 连接接通过cid 串联， user_data 是ngx_http_xquic_connection_t有真正的udp connection
+xqc_connection_t 一个抽象的quic连接, 通过cid 定义
  
-xqc_stream_s stream_data_in 存frame 数据
+xqc_stream_s 一个stream 关联一个request, 存在一个fake connection， 一个stream 含有多个frame
 
 xqc_h3_stream_t 包含一个xqc_stream_s
 
@@ -40,8 +39,10 @@ bind fd有read event 被触发，创建quic connection
                      
                      -- xqc_conn_set_alp_user_data
 ```
+
 **ngx_http_xquic_init_connection** 会给udp socket 挂一个读写回调
 
+**ngx_xquic_recv_packet_t** 里面有一次read的原始接受的udp 数据，buf 最大1500
 
 ## 3. header/body读写处理
 ```
