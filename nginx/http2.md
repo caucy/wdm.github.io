@@ -107,7 +107,7 @@ static ngx_http_v2_handler_pt ngx_http_v2_frame_states[] = {
 };
 ```
 
-/**header frame 处理的流程：**/
+**header frame 处理的流程：**
 
 ```
 -- ngx_http_v2_read_handler
@@ -124,6 +124,7 @@ static ngx_http_v2_handler_pt ngx_http_v2_frame_states[] = {
         --ngx_http_v2_state_complete
           -- h2c->state->hanlder = ngx_http_v2_state_head 回到探测frame header 的回调去
 ```
+**h2 把每个stream 拆成了一个request, 多路复用的request在链接upstream的时候会变成多个并行的请求!!!**
 
 这里有个难理解的点，11个阶段最后一个handler 是proxy_module_handler, 会调用 **ngx_http_read_client_request_body**, unbuffer request 会立刻调用ngx_http_upstream_init。
 
@@ -137,7 +138,7 @@ static ngx_http_v2_handler_pt ngx_http_v2_frame_states[] = {
 
 **ngx_http_read_client_request_body** 处理完后，h2c 来数据后，ngx_http_v2_read_handler会被触发，然后调用到r 的read_event_handler去。
 
-/**data frame 处理流程:**/
+**data frame 处理流程:**
 ```
 -- ngx_http_v2_read_handler
   -- ngx_http_v2_state_preface
@@ -205,6 +206,15 @@ grpc 处理request 跟h2没有区别，处理upstream有几个不同：
 
 ## 8.grpc 发起upstream处理流程
 ```
--- ngx_http_grpc_create_request 创建header frame
-  -- 
+-- ngx_http_upstream_handler
+    -- u->header_process(处理header frame, 放到r中)
+        -- input_filter = ngx_http_grpc_filter
+        -- header_filter
+            --grpc_header_filter
+        -- body_filter
+            -- write_filter
+            -- out_filter = grpc_out_filter
 ```
+1. **ngx_http_grpc_filter** 处理goaway 或者setting frame 等，将u->buffer 数据**攒完一个data frame**后放到u->out_bufs去
+
+2. **ngx_http_grpc_parse_frame** 是非常重要的一个函数，按h2 frame 解析frame, 没解析完就返回again。
