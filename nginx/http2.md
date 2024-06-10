@@ -159,20 +159,22 @@ h2c 收到数据后，通过post_event fake_connection->read_event_hanlder = **n
 
 ```
   -- ngx_http_upstream_handler
-    -- ngx_http_upstream_process_header
-      -- **header_filter阶段**
-      --......
-      --ngx_http_v2_header_filter
-        -- send_chain = ngx_http_v2_send_chain
+    -- **header_filter阶段**
+      -- u->read_event_handler = ngx_http_upstream_process_header
+        --......
+        --ngx_http_v2_header_filter
+          -- send_chain = ngx_http_v2_send_chain
 
-      -- **body_filter阶段**
-      --ngx_http_upstream_send_response
-        -- ngx_http_upstream_process_non_buffered_upstream
-          -- 各种body_filter
-          -- ngx_write_filter
-            -- send_chain() -- ngx_http_v2_send_chain // 将frame 挂到h2c->last_out去并发出去
+    -- **body_filter阶段**
+    --ngx_http_upstream_send_response
+      -- u->read_event_handler = ngx_http_upstream_process_non_buffered_upstream
+        -- 各种body_filter
+        -- ngx_write_filter
+          -- send_chain() -- ngx_http_v2_send_chain // 将frame 挂到h2c->last_out去并发出去
   
 ```
+**ngx_http_upstream_process_header** 和**ngx_http_upstream_process_non_buffered_upstream** 是header 和response
+重入的入口。
 
 ngx_http_v2_send_chain 将frame 挂到h2c->last_out去并发出去，ngx_http_v2_state_read_data也会检查h2c->last_out并发送
 
@@ -194,7 +196,6 @@ init_upstream 后 r->read_event_hanlder = **ngx_http_upstream_read_request_handl
 
 ```
 ngx_http_do_read_client_request_body 会识别是否buffer，同时识别h1, h2, h3
-
 
 ## 7. grpc 和普通http2 有什么不同？
 grpc 处理request 跟h2没有区别，处理upstream有几个不同：
