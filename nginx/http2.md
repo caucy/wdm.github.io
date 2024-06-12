@@ -225,3 +225,11 @@ ngx_http_v2_send_chain 将frame 挂到h2c->last_out去并发出去，ngx_http_v2
 1. **ngx_http_grpc_filter** 处理goaway 或者setting frame 等，将u->buffer 数据**攒完一个data frame**后放到u->out_bufs去
 
 2. **ngx_http_grpc_parse_frame** 是非常重要的一个函数，按h2 frame 解析frame, 没解析完就返回again。
+
+##  回顾下nginx 要实现http2，要实现哪些重要的hook点
+1. h2c数据来了要有读回调，逻辑在**ngx_http_v2_read_handler**, 实现关联stream, 然后关联http request 的逻辑
+2. request 级别来数据了，需要识别header 是否收完，调**ngx_http_v2_run_request**走11个阶段
+3. http2 是unbuffer的，所以read_client_request_body 需要兼容，调用upstream_init后，**ngx_http_v2_read_handler**要实现发送数据给upstream的逻辑，最终到**ngx_http_upstream_read_request_handler**去
+4. http1 数据需要转成http2, 所以需要header_filter 阶段换掉r->send_chain，用h2的格式在write_body_filter后发送数据给客户端
+
+nginx 实现quic 的几个重要的函数基本跟h2一样
