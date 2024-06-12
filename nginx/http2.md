@@ -39,7 +39,7 @@ ngx_http_v2_write_handler 将h2c->last_out 链表的数据发给client
 
 Frame Format：
 All frames begin with a fixed 9-octet header followed by a variable-length payload.
-
+```
  +-----------------------------------------------+
  |                 Length (24)                   |
  +---------------+---------------+---------------+
@@ -49,7 +49,7 @@ All frames begin with a fixed 9-octet header followed by a variable-length paylo
  +=+=============================================================+
  |                   Frame Payload (0...)                      ...
  +---------------------------------------------------------------+
-
+```
 ## 3. http v1 request 的处理流程
 ```
 -- ngx_http_init_connection
