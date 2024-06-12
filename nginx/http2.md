@@ -152,10 +152,10 @@ static ngx_http_v2_handler_pt ngx_http_v2_frame_states[] = {
 
 ```
 -- ngx_http_read_client_request_body
-  -- 初始化request_body
-  -- if r->stream -> ngx_http_v2_read_request_body 
+  -- 初始化r->request_body
+  -- if r->stream => ngx_http_v2_read_request_body 
     -- ngx_http_v2_send_window_update 调整window size
-    -- post_handler()执行upstream_init, r->read_event_handler = block_handler
+    -- post_handler()执行upstream_init
 ```
 
 **ngx_http_read_client_request_body** 处理完后，h2c 来数据后，ngx_http_v2_read_handler会被触发，然后调用到r 的read_event_handler去。
@@ -169,16 +169,16 @@ static ngx_http_v2_handler_pt ngx_http_v2_frame_states[] = {
           -- ngx_http_v2_state_read_data
               -- ngx_http_v2_process_request_body
                 --...
-                -- post_event(fake_connection_read), 此时stream 的所有数据在r->request_body->buf 里面
+                -- post_event(fake_connection_read), 此时stream 的所有数据在r->request_body->buf 里面。fake_connection->read_event_hanlder = ngx_http_request_handler
             --ngx_http_v2_state_complete
               -- handler = ngx_http_v2_state_read_data // 数据没收完
                 -- h2c->state->hanlder = ngx_http_v2_state_head // 数据收完了回到探测frame header 的回调去
 ```
-h2c 收到数据后，通过post_event fake_connection->read_event_hanlder = **ngx_http_request_handler**，回调r->read_event_handler到**ngx_http_upstream_read_request_handler**去，后面流程和http1一致。
+h2c 收到data frame数据后，此时post_event fake_connection->read_event_hanlder = **ngx_http_request_handler**，最终到**ngx_http_upstream_read_request_handler**去，后面流程和http1一致。
 
-## 5. http2 协议response 的hook 流程
+## 5. http2 协议response处理流程
 
-响应的流程比请求的流程要简单，ngx_http_v2_header_filter 中替换了send_chain = ngx_http_v2_send_chain
+响应的流程比请求的流程要简单，核心在**ngx_http_v2_header_filter 中替换了send_chain = ngx_http_v2_send_chain**
 
 ```
   -- ngx_http_upstream_handler
@@ -201,36 +201,17 @@ h2c 收到数据后，通过post_event fake_connection->read_event_hanlder = **n
 
 ngx_http_v2_send_chain 将frame 挂到h2c->last_out去并发出去，ngx_http_v2_state_read_data也会检查h2c->last_out并发送
 
-## 6. http1 proxy_request_buffering 的处理流程回顾
-```
--- ngx_http_proxy_handler 开始发送数据给upstream
-  -- ngx_http_read_client_request_body
-    -- ngx_http_upstream_init
-      -- r->read_event_handler = ngx_http_upstream_read_request_handler
-```
-init_upstream 后 r->read_event_hanlder = **ngx_http_upstream_read_request_handler** 会先读request connection 的数据，再写给u->connection
-
-```
--- ngx_http_upstream_read_request_handler
-  -- ngx_http_upstream_send_request
-    --ngx_http_upstream_send_request_body
-      -- ngx_http_do_read_client_request_body
-          先循环读r->connection, 然后ngx_output_chain 写数据给upstream
-
-```
-ngx_http_do_read_client_request_body 会识别是否buffer，同时识别h1, h2, h3
-
-## 7. grpc 和普通http2 有什么不同？
+## 6. grpc 和普通http2 有什么不同？
 * grpc 处理request 跟h2没有区别，处理upstream有几个不同：
 1. grpc module 直接替换了clcf，所以content_phase 阶段不走 ngx_http_proxy_handler，调用grpc_handler
 2. 访问upstream的时候，重新实现upstream的回调，封装成grpc格式
-3. grpc 和quic 都默认设置了**request_body_no_buffering=1**，跟proxy_request_buffer 没关系了
+3. grpc 和quic 都默认设置了**request_body_no_buffering=1**，影响ngx_http_read_client_request_body，走非buffer模式
 
 * grpc message 如何拆成http2 data frame的？
 ![image](https://github.com/caucy/wdm.github.io/assets/19687952/27541d0e-e0f5-49f4-9d20-3114d33cff42)
 这里有一个细节，一个grpc message, 如果超出一定大小，会被拆成多个http2 frame,  **message length 只在第一个data frame 中有**。
 
-## 8.grpc 发起upstream处理流程
+## 7.grpc 处理upstream读的处理流程
 ```
 -- ngx_http_upstream_handler
     -- u->header_process(处理header frame, 放到r中)
