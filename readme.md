@@ -44,7 +44,7 @@
 
 ### http2 + quic 协议
 
-[nginx http2模块请求和响应的理解](nginx/http2.md)
+[nginx 如何实现http2 转发的](nginx/http2.md)
 
 [对quic协议的一些理解](nginx/quic.md)
 
