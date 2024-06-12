@@ -1,5 +1,13 @@
 # nginx 如何实现http2 转发的
 
+## 先抛几个问题
+1. nginx 处理http2请求，回源的时候是多路复用的吗？
+2. 如何判断一个http2/grpc message 接受完了？
+3. 一个端口同时有h1 h2, 什么时候走h2?
+4. http2 的处理流程跟http1 有什么联系跟区别？会走11个阶段吗？
+5. http3 的处理流程跟http2 的实现有联系吗？
+
+
 ## 1. http2 对连接的处理
 没有配ssl
 ```
@@ -27,7 +35,20 @@ ngx_http_v2_write_handler 将h2c->last_out 链表的数据发给client
 2. h2c 代表一个h2 对象，有多个stream，每个stream 对应一个http_request 对象，一个fake connection
 3. h2c->state.buffer 缓存链接的数据
 4. h2->connection 是client 真实的连接,因为多路复用关联了多个fake connection, r->stream->h2c->connection 可以找到真正的connection
-5. h2->stream 是一个数组，可以根据streams_index 找到stream
+5. h2->stream 是一个数组，可以根据streams_index 找到stream, 一个stream 由一组相同stream_id 的frame 组成
+
+Frame Format：
+All frames begin with a fixed 9-octet header followed by a variable-length payload.
+
+ +-----------------------------------------------+
+ |                 Length (24)                   |
+ +---------------+---------------+---------------+
+ |   Type (8)    |   Flags (8)   |
+ +-+-------------+---------------+-------------------------------+
+ |R|                 Stream Identifier (31)                      |
+ +=+=============================================================+
+ |                   Frame Payload (0...)                      ...
+ +---------------------------------------------------------------+
 
 ## 3. http v1 request 的处理流程
 ```
@@ -47,8 +68,9 @@ ngx_http_v2_write_handler 将h2c->last_out 链表的数据发给client
 ```
 ngx_http_read_client_request_body默认读完body才调用ngx_http_upstream_init, 但是受**request_body_no_buffering**影响。
 
-**request_body_no_buffering** on 模式下，先调用**ngx_http_upstream_init**，后续r->connection 来数据后再调用**ngx_http_upstream_read_request_handler**
-读，然后发给upstream->connection.
+**request_body_no_buffering** on 模式下，先调用**ngx_http_upstream_init**，后续r->connection 来数据后再调用
+
+**ngx_http_upstream_read_request_handler**，然后发给upstream->connection.
 
 如果request_body_no_buffering off, 会缓存request，收完body后调用**ngx_http_upstream_init**。
 
@@ -199,10 +221,14 @@ init_upstream 后 r->read_event_hanlder = **ngx_http_upstream_read_request_handl
 ngx_http_do_read_client_request_body 会识别是否buffer，同时识别h1, h2, h3
 
 ## 7. grpc 和普通http2 有什么不同？
-grpc 处理request 跟h2没有区别，处理upstream有几个不同：
+* grpc 处理request 跟h2没有区别，处理upstream有几个不同：
 1. grpc module 直接替换了clcf，所以content_phase 阶段不走 ngx_http_proxy_handler，调用grpc_handler
 2. 访问upstream的时候，重新实现upstream的回调，封装成grpc格式
 3. grpc 和quic 都默认设置了**request_body_no_buffering=1**，跟proxy_request_buffer 没关系了
+
+* grpc message 如何拆成http2 data frame的？
+![image](https://github.com/caucy/wdm.github.io/assets/19687952/27541d0e-e0f5-49f4-9d20-3114d33cff42)
+这里有一个细节，一个grpc message, 如果超出一定大小，会被拆成多个http2 frame,  **message length 只在第一个data frame 中有**。
 
 ## 8.grpc 发起upstream处理流程
 ```
