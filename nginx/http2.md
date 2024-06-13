@@ -216,6 +216,7 @@ ngx_http_v2_send_chain 将frame 挂到h2c->last_out去并发出去，ngx_http_v2
 * grpc message 如何拆成http2 data frame的？
 ![image](https://github.com/caucy/wdm.github.io/assets/19687952/27541d0e-e0f5-49f4-9d20-3114d33cff42)
 这里有一个细节，一个grpc message, 如果超出一定大小，会被拆成多个http2 frame,  **message length 只在第一个data frame 中有**。
+message length 是一个varint 数组，并不是简单的10 进制数。
 
 ## 7.grpc 处理upstream读的处理流程
 ```
