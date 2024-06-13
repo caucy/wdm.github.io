@@ -4,8 +4,9 @@
 1. nginx 处理http2请求，回源的时候是多路复用的吗？
 2. 如何判断一个http2/grpc message 接受完了？
 3. 一个端口同时有h1 h2, 什么时候走h2?
-4. http2 的处理流程跟http1 有什么联系跟区别？会走11个阶段吗？
-5. http3 的处理流程跟http2 的实现有联系吗？
+4. 如何判断流结束？
+5. http2 的处理流程跟http1 有什么联系跟区别？会走11个阶段吗？
+6. http3 的处理流程跟http2 的实现有联系吗？
 
 
 ## 1. http2 对连接的处理
@@ -50,6 +51,10 @@ All frames begin with a fixed 9-octet header followed by a variable-length paylo
  |                   Frame Payload (0...)                      ...
  +---------------------------------------------------------------+
 ```
+
+**如何判断流结束？**
+stream flags 里面有两个重要标志位，一个是压缩，一个end
+
 ## 3. http v1 request 的处理流程
 ```
 -- ngx_http_init_connection
@@ -175,6 +180,7 @@ static ngx_http_v2_handler_pt ngx_http_v2_frame_states[] = {
                 -- h2c->state->hanlder = ngx_http_v2_state_head // 数据收完了回到探测frame header 的回调去
 ```
 h2c 收到data frame数据后，此时post_event fake_connection->read_event_hanlder = **ngx_http_request_handler**，最终到**ngx_http_upstream_read_request_handler**去，后面流程和http1一致。
+
 
 ## 5. http2 协议response处理流程
 
