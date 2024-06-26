@@ -116,8 +116,9 @@ ngx_dyups_do_update(ngx_str_t *name, ngx_buf_t *buf, ngx_str_t *rv)
 }
 ```
 
-# 2. nginx 如何实现不reload 更新server
+# 2. nginx ctx 数据结构的理解
 
-目前没有开源的dynamic server 实现，但是主要的实现思路就是动态更新ngx_http_core_module cscf->server_names 这个hash表即可。
-
-# 3. apisix 如何实现不reload 更新upstream & server
+1. ctx 是ngx_http_conf_ctx_t 是一个三维数组，main_conf, srv_conf, loc_conf
+2. 每个server、location 一个ctx是，每个ctx 的cmcf 都指向main_conf 的位置
+3. server_conf location_conf 给每个module 留了一位
+4. ngx_conf_parse就是解析配置，但是需要什么信息？ctx 的作用？
