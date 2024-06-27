@@ -31,7 +31,11 @@
 ### k8s
 [常见debug 指令](k8s/debug.md)
 
+[卷挂载冲突问题](k8s/volume_confict.md)
+
 [如何实现autoport]
+
+
 
 ### ws 协议
 [websocket的握手和解包](websocket/websocket_frame.md)
