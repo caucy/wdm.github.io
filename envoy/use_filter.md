@@ -120,10 +120,15 @@ typed_config:
 ```
 * lua 扩展extensions.filters.http.lua.v3.Lua
 如果常见的filter 不能满足使用，可以在lua 扩展:
+
 在流式传输的请求流和/或响应流中检查头部、正文和尾部。
+
 修改头部和尾部。
+
 阻塞并缓存整个请求/响应正文以进行检查。
+
 对上游主机执行出站异步 HTTP 调用。可以在缓冲正文数据的同时执行此类调用，以便在调用完成时可以修改上游头部。
+
 执行直接响应并跳过后续的过滤器迭代。例如，脚本可以向上游发起 HTTP 身份认证调用，然后直接响应 403 响应码。
 
 envoy 提供了一系列[api](https://cloudnative.to/envoy/configuration/http/http_filters/lua_filter.html) 可以操作,举例：
