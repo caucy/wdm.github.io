@@ -49,7 +49,7 @@ static_resources:
 一般api/envoy/config 是通用的filter
 
 ## 常见的filter 配置
-1. 请求buffer：extensions.filters.http.buffer.v3.Buffer
+* 请求buffer：extensions.filters.http.buffer.v3.Buffer
 ```
 http_filters:
   - name: envoy.filters.http.buffer
@@ -60,7 +60,7 @@ http_filters:
 ```
 请求大小超过1024byte 会返回413
 
-2. gzip 压缩
+* 压缩模块
 ```
 - name: envoy.filters.http.compressor
     typed_config:
@@ -78,7 +78,7 @@ http_filters:
 ```
 response_direction_config 指定响应压缩配置，最小length 等，compressor_library 指定压缩算法等。
 
-3. header mutation header 修改
+* header mutation header 修改
 downstream header 修改
 ```
 name: downstream-header-mutation
@@ -118,3 +118,27 @@ typed_config:
           value: "downstream-global-flag-header-value-disabled-by-default"
         append_action: APPEND_IF_EXISTS_OR_ADD
 ```
+* lua 扩展extensions.filters.http.lua.v3.Lua
+如果常见的filter 不能满足使用，可以在lua 扩展:
+在流式传输的请求流和/或响应流中检查头部、正文和尾部。
+修改头部和尾部。
+阻塞并缓存整个请求/响应正文以进行检查。
+对上游主机执行出站异步 HTTP 调用。可以在缓冲正文数据的同时执行此类调用，以便在调用完成时可以修改上游头部。
+执行直接响应并跳过后续的过滤器迭代。例如，脚本可以向上游发起 HTTP 身份认证调用，然后直接响应 403 响应码。
+
+envoy 提供了一系列[api](https://cloudnative.to/envoy/configuration/http/http_filters/lua_filter.html) 可以操作,举例：
+```
+function envoy_on_request(request_handle)
+  -- 记录请求信息
+  request_handle:logInfo("Authority: "..request_handle:headers():get(":authority"))
+  request_handle:logInfo("Method: "..request_handle:headers():get(":method"))
+  request_handle:logInfo("Path: "..request_handle:headers():get(":path"))
+end
+
+function envoy_on_response(response_handle)
+  -- 记录响应状态码
+  response_handle:logInfo("Status: "..response_handle:headers():get(":status"))
+end
+```
+
+
