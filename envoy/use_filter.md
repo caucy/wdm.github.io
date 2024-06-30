@@ -47,3 +47,24 @@ static_resources:
 * filter 的参数定义都在api/envoy/目录的pb文件中
 以envoy.filters.network.http_connection_manager为例，参数定义在api/envoy/extensions/filters/network/http_connection_manager/v3/http_connection_manager.proto中
 一般api/envoy/config 是通用的filter
+
+## 常见的filter 配置
+1. 请求buffer：extensions.filters.http.buffer.v3.Buffer
+```
+http_filters:
+  - name: envoy.filters.http.buffer
+    typed_config:
+      "@type": type.googleapis.com/envoy.extensions.filters.http.buffer.v3.Buffer
+      max_request_bytes: 1024
+
+```
+请求大小超过1024byte 会返回413
+
+3. add_header
+```
+
+```
+   
+5. gzip 压缩
+
+
