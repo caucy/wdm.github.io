@@ -1,5 +1,5 @@
 ## envoy 有哪些filter？
-envoy 没有一个命令能dump 所有支持的filter，不是很友好，如果想支持某个版本的envoy 支持哪些filter，可以看源码source/extensions/extensions_build_config.bzl，里面定义了所有的filter信息。
+envoy 没有一个命令能dump 所有支持的filter，不是很友好，如果想看某个版本的envoy 支持哪些filter，可以看源码source/extensions/extensions_build_config.bzl，里面定义了所有的filter信息。
 
 ## envoy filter 如何使用
 一个常见的filter 如下：
