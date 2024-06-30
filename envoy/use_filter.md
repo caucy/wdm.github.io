@@ -36,14 +36,14 @@ static_resources:
 4. filter 的源码在哪，做了什么工作？
 
 ## envoy filter 使用指南
-* 1. filter 的name 一般定义在source/extensions/extensions_build_config.bzl
+* filter 的name 一般定义在source/extensions/extensions_build_config.bzl
  
-* 2. type_config，一般默认type.googleapis.com 前缀，envoy.extensions.filters.http.router.v3 是pb package name, Router是type 类型
+* type_config，一般默认type.googleapis.com 前缀，envoy.extensions.filters.http.router.v3 是pb package name, Router是type 类型
  
-* 3. filter 的官方文档
+* filter 的官方文档
      https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/config
 通过文档，可以查询每个filter 有哪些参数，每个参数的含义
 
-* 4. filter 的参数定义都在api/envoy/config目录的pb文件中
-以envoy.filters.network.http_connection_manager为例，参数定义在api/envoy/config的子目录filters.network.v3.http_connection_manager.proto 中
-  
+* filter 的参数定义都在api/envoy/目录的pb文件中
+以envoy.filters.network.http_connection_manager为例，参数定义在api/envoy/extensions/filters/network/http_connection_manager/v3/http_connection_manager.proto中
+一般api/envoy/config 是通用的filter
