@@ -60,11 +60,61 @@ http_filters:
 ```
 请求大小超过1024byte 会返回413
 
-3. add_header
+2. gzip 压缩
+```
+- name: envoy.filters.http.compressor
+    typed_config:
+      "@type": type.googleapis.com/envoy.extensions.filters.http.compressor.v3.Compressor
+      response_direction_config:
+        common_config:
+          min_content_length: 100
+        disable_on_etag_header: true
+      compressor_library:
+        name: text_optimized
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.compression.gzip.compressor.v3.Gzip
+          memory_level: 3
+          window_bits: 10
+```
+response_direction_config 指定响应压缩配置，最小length 等，compressor_library 指定压缩算法等。
+
+3. header mutation header 修改
+downstream header 修改
+```
+name: downstream-header-mutation
+typed_config:
+  "@type": type.googleapis.com/envoy.extensions.filters.http.header_mutation.v3.HeaderMutation
+  mutations:
+    request_mutations:
+    - append:
+        header:
+          key: "downstream-request-global-flag-header"
+          value: "downstream-request-global-flag-header-value"
+        append_action: APPEND_IF_EXISTS_OR_ADD
+    response_mutations:
+    - append:
+        header:
+          key: "downstream-global-flag-header"
+          value: "downstream-global-flag-header-value"
+        append_action: APPEND_IF_EXISTS_OR_ADD
 ```
 
+upstream header 修改
 ```
-   
-5. gzip 压缩
-
-
+name: downstream-header-mutation-disabled-by-default
+typed_config:
+  "@type": type.googleapis.com/envoy.extensions.filters.http.header_mutation.v3.HeaderMutation
+  mutations:
+    request_mutations:
+    - append:
+        header:
+          key: "downstream-request-global-flag-header-disabled-by-default"
+          value: "downstream-request-global-flag-header-value-disabled-by-default"
+        append_action: APPEND_IF_EXISTS_OR_ADD
+    response_mutations:
+    - append:
+        header:
+          key: "downstream-global-flag-header-disabled-by-default"
+          value: "downstream-global-flag-header-value-disabled-by-default"
+        append_action: APPEND_IF_EXISTS_OR_ADD
+```
