@@ -59,6 +59,8 @@
 ### envoy
 [envoy 如何解析http 协议](envoy/http_parser.md)
 
+[envoy 如何编译](envoy/build.md)
+
 [envoy 如何使用常见的filter](envoy/use_filter.md)
 
 [envoy 如何实现一个filter](envoy/implement_filter.md)
