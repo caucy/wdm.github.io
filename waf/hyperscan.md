@@ -23,6 +23,7 @@ hs_scan()进行匹配，调用时需要规定回调函数
 * 6. 回调函数
 * 7. 回调函数传参
 */
+
 hs_scan(HsDatabase, tmpString, strlen(tmpString), 0, HsStra, onMatch, tmpString);
 
 ### 回调函数
@@ -41,6 +42,7 @@ hs_scan(HsDatabase, tmpString, strlen(tmpString), 0, HsStra, onMatch, tmpString)
  * @return
  * 暂时没用
  */
+ 
 static int onMatch(unsigned int id, unsigned long long from, unsigned long long to, unsigned int flags, void *ctx) {}
 
 
