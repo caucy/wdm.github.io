@@ -85,7 +85,9 @@
 ### 安全
 [云高防如何防cc攻击](waf/cc.md)
 
-[云waf的实现](waf/waf.md)
+[hyperscan 的使用](waf/hyperscan.md)
+
+[云waf 的实现](waf/waf.md)
 
 ### 踩坑系列
 [lua 奇葩的空洞数组](bug/lua_array.md)
