@@ -87,7 +87,7 @@
 
 [hyperscan 的使用](waf/hyperscan.md)
 
-[云waf 的实现](waf/waf.md)
+[一些常见攻击的实现和waf拦截方案](waf/waf.md)
 
 ### 踩坑系列
 [lua 奇葩的空洞数组](bug/lua_array.md)
