@@ -89,6 +89,8 @@
 
 [一些常见攻击的实现和waf拦截方案](waf/waf.md)
 
+[sse 协议与流式接口安全](waf/sse.md)
+
 ### 踩坑系列
 [lua 奇葩的空洞数组](bug/lua_array.md)
 
