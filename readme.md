@@ -87,7 +87,7 @@
 
 [hyperscan 的使用](waf/hyperscan.md)
 
-[一些常见攻击的实现和waf拦截方案](waf/waf.md)
+[一些常见的攻击的waf拦截手段](waf/waf.md)
 
 [根据个人信息生成密码字典的方法](waf/passwd.md)
 
