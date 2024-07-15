@@ -3,7 +3,6 @@
 waf 核心逻辑一般就是对query，body 做多正则匹配。
 
 ## sql注入
-对query，body 做正则匹配
 ```
 select.+(from|limit) // 含有select
 (?:(union(.*?)select)) // 含有union
