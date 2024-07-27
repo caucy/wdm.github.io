@@ -98,7 +98,7 @@
 
 [golang http transport 错误使用的泄漏](bug/golang_transport.md)
 
-[resty dsl 的in是 on 遍历](bug/dsl.md)
+[resty dsl 的一些缺陷](bug/dsl.md)
 
 [proxy_add_header/grpc_add_header被覆盖](nginx/add_header.md)
 
