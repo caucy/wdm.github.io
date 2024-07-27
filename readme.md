@@ -101,3 +101,5 @@
 [resty dsl 的in是 on 遍历](bug/dsl.md)
 
 [proxy_add_header/grpc_add_header被覆盖](nginx/add_header.md)
+
+[一次syn 重传引发的内核调参](nginx/syn.md)
