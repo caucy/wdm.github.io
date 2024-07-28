@@ -102,4 +102,4 @@
 
 [proxy_add_header/grpc_add_header被覆盖](nginx/add_header.md)
 
-[一次syn 重传引发的内核调参](nginx/syn.md)
+[三次握手阶段sync重传问题排查](nginx/syn.md)
