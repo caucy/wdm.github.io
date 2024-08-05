@@ -22,6 +22,8 @@
 
 html 的解析顺序为3个环节：HTML解码 -->URL解码 -->JS解码
 
+event_handler 没法编码替换，js脚本可以编码
+
 举例1：
 ```
 1. 对javascript:alert(1)进行HTML编码
