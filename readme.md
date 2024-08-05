@@ -93,6 +93,8 @@
 
 [sse 协议与流式接口安全](waf/sse.md)
 
+[xss 攻击和绕过思路](waf/xss.md)
+
 ### 踩坑系列
 [lua 奇葩的空洞数组](bug/lua_array.md)
 
