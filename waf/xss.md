@@ -111,7 +111,7 @@ js 代码可以混淆，可以js编码成unicode，可以使用html实体编码�
 ```
 
 ## html 编码绕过
-html 一般会过滤掉< > " &, 所以输出在html 内容位置的xss 泄露可以完全避免，但是输出在html 属性的payload 可能会漏放
+html 一般会过滤掉< > " &, 所以输出在html 内容位置的xss 可以用10紧致html实体闭合，输出在html 属性的payload 通过换编码，混淆等有很多绕过方式。
 一般payload 以下格式
 ```
 {quote}{filler}{event_handler}{?filler}={?filler}{javascript}
