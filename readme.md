@@ -77,6 +77,8 @@
 
 [如何定位线上cpu热点](c/cpu_profile.md)
 
+[定位use after free](c/asan.md)
+
 ### ebpf
 [如何使用ebpf]
 
