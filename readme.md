@@ -71,13 +71,15 @@
 ### rust 编程
 
 
-### 性能分析
+### 问题定位思路
 
 [如何定位c/c++的内存泄露](nginx/mem_leak.md)
 
 [如何定位线上cpu热点](c/cpu_profile.md)
 
 [定位use after free](c/asan.md)
+
+[如果仅用tcpdump 找到指定的http包](c/tcpdump.md)
 
 ### ebpf
 [如何使用ebpf]
