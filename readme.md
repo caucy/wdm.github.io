@@ -17,7 +17,7 @@
 
 [参考nginx-lua 实现body-filter replace response body](nginx/replace_response_body.md)
 
-[4 7 层如果做ip传递的](nginx/server_addr.md)
+[4 7 层如何做ip传递的](nginx/server_addr.md)
 
 [shutdown 为啥一直不退出？](nginx/shutdown.md)
 
