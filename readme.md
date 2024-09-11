@@ -81,10 +81,6 @@
 
 [如果仅用tcpdump 找到指定的http包](c/tcpdump.md)
 
-### ebpf
-[如何使用ebpf]
-
-[cilium 实现]
 
 ### 安全
 [云高防如何防cc攻击](waf/cc.md)
