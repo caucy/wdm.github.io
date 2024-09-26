@@ -97,6 +97,10 @@
 
 [ja3 的利用与绕过](waf/ja3.md)
 
+[nginx 实现mtls](nginx/mtls.md)
+
+[nginx 使用国密](nginx/ssl.md)
+
 ### 踩坑系列
 [lua 奇葩的空洞数组](bug/lua_array.md)
 
