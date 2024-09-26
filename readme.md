@@ -95,6 +95,8 @@
 
 [xss 攻击和绕过思路](waf/xss.md)
 
+[ja3 的利用与绕过](waf/ja3.md)
+
 ### 踩坑系列
 [lua 奇葩的空洞数组](bug/lua_array.md)
 
